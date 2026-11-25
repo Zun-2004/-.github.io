@@ -32,16 +32,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %> | LinguaWorld</title>
+<title><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %> | LinguaTech</title>
 <style>
-    :root { color-scheme: light; --ink: #17233b; --muted: #48576f; --accent: #254b9b; --line: #ccd7e7; }
+    :root { color-scheme: light; --ink: #20352e; --muted: #455a51; --accent: #146c43; --line: #ccdcd2; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: #f0f4fa; color: var(--ink); font: 1rem/1.55 system-ui, "Myanmar Text", "Yu Gothic", sans-serif; }
+    body { margin: 0; background: #f4faf6; color: var(--ink); font: 1rem/1.55 system-ui, "Myanmar Text", "Yu Gothic", sans-serif; }
     main { width: min(48rem, calc(100% - 2rem)); margin: 2rem auto; }
-    header { background: #152d54; color: white; padding: clamp(1.25rem, 4vw, 2.5rem); border-radius: 1rem; }
+    header { background: #173f32; color: white; padding: clamp(1.25rem, 4vw, 2.5rem); border-radius: 1rem; }
     h1 { margin: .25rem 0 0; font-size: clamp(1.9rem, 5vw, 2.65rem); line-height: 1.15; }
-    header a { color: #e1ecff; }
-    header p { margin: .6rem 0 0; color: #e1ecff; }
+    header a { color: #e8f5ed; }
+    header p { margin: .6rem 0 0; color: #e8f5ed; }
     nav { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
     nav a[aria-current] { font-weight: 700; }
     .card { min-width: 0; width: 100%; margin: 1rem 0; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid var(--line); border-radius: .85rem; background: white; }
@@ -50,7 +50,7 @@
     .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
     .option { display: flex; align-items: center; gap: .65rem; min-height: 3rem; padding: .65rem .8rem; border: 1px solid var(--line); border-radius: .55rem; overflow-wrap: anywhere; }
     label.option { cursor: pointer; }
-    label.option:hover, .option:has(input:checked) { background: #eef4ff; border-color: var(--accent); }
+    label.option:hover, .option:has(input:checked) { background: #e8f5ed; border-color: var(--accent); }
     .option input { flex: none; margin: 0; accent-color: var(--accent); }
     .option.correct { border-color: #388067; background: #e9f7ef; }
     .option.wrong { border-color: #a65749; background: #fff1ed; }
@@ -59,7 +59,7 @@
     .summary p { margin: 0; color: var(--muted); }
     .summary strong { color: var(--ink); font-size: 1.35rem; }
     .button { display: inline-block; border: 0; border-radius: .55rem; padding: .75rem 1.1rem; background: var(--accent); color: white; font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
-    :focus-visible { outline: 3px solid #557bcb; outline-offset: 3px; }
+    :focus-visible { outline: 3px solid #278659; outline-offset: 3px; }
     @media (max-width: 35rem) { .options { grid-template-columns: 1fr; } main { margin-top: 1rem; } }
 </style>
 </head>

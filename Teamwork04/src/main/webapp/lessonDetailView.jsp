@@ -16,7 +16,7 @@
         rel="stylesheet">
 
     <link rel="stylesheet"
-        href="${pageContext.request.contextPath}/css/style.css">
+        href="${pageContext.request.contextPath}/style.css">
 
     <style>
         .lesson-detail-container {
@@ -156,7 +156,7 @@
 
     </div>
 
-    <h4 class="mb-3">📚 Flashcards</h4>
+    <h2 class="h4 mb-3">Flashcards (<%= cards == null ? 0 : cards.size() %>)</h2>
 
     <% if (cards == null || cards.isEmpty()) { %>
 
@@ -226,38 +226,6 @@
 
             </div>
 
-            <div id="nextLessonBox"
-                class="next-lesson-box mt-4"
-                style="display: none;">
-
-                <div class="text-success fw-bold mb-3">
-                    🎉 Congratulations! You finished this lesson!
-                </div>
-
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                    <% if (nextLessonId != null) { %>
-
-                        <a href="LessonDetailController?id=<%= nextLessonId %>"
-                            class="btn btn-primary px-3">
-                            Next Lesson →
-                        </a>
-
-                    <% } %>
-
-                    <a href="quiz?lessonId=<%= lesson.getLessonId() %>"
-                        class="btn btn-outline-success px-3">
-                        Take Quiz
-                    </a>
-
-                    <a href="LessonListController"
-                        class="btn btn-outline-secondary px-3">
-                        Back to Lesson List
-                    </a>
-
-                </div>
-
-            </div>
 
         </div>
 
@@ -271,12 +239,14 @@
 
                     String word = f.getWord() == null ? "" : f.getWord()
                         .replace("\\", "\\\\")
+                        .replace("<", "\\u003c")
                         .replace("\"", "\\\"")
                         .replace("\r", "")
                         .replace("\n", "\\n");
 
                     String translated = f.getTranslated() == null ? "-" : f.getTranslated()
                         .replace("\\", "\\\\")
+                        .replace("<", "\\u003c")
                         .replace("\"", "\\\"")
                         .replace("\r", "")
                         .replace("\n", "\\n");
@@ -345,13 +315,6 @@
                 document.getElementById("nextBtn").disabled =
                     isLastCard;
 
-                const nextLessonBox =
-                    document.getElementById("nextLessonBox");
-
-                if (nextLessonBox) {
-                    nextLessonBox.style.display =
-                        isLastCard ? "block" : "none";
-                }
             }
 
             function flipCard() {
@@ -390,6 +353,14 @@
         </script>
 
     <% } %>
+
+    <nav class="d-flex flex-wrap gap-2 mt-4" aria-label="Lesson actions">
+        <a href="quiz?lessonId=<%= lesson.getLessonId() %>" class="btn btn-primary">Take Quiz</a>
+        <% if (nextLessonId != null) { %>
+        <a href="LessonDetailController?id=<%= nextLessonId %>" class="btn btn-outline-success">Next Lesson →</a>
+        <% } %>
+        <a href="HomeController" class="btn btn-outline-secondary">Home</a>
+    </nav>
 
 </div>
 

@@ -1,4 +1,3 @@
-
 package aiwa.controller;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class HomeController extends HttpServlet {
 			HttpServletResponse response)
 			throws ServletException, IOException {
 
-		response.sendRedirect("index.jsp");
+		response.sendRedirect(request.getContextPath() + "/LanguageController");
 	}
 
 	protected void doPost(HttpServletRequest request,

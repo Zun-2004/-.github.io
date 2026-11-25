@@ -14,7 +14,7 @@
     <title>Premium Lessons</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
-<body class="bg-dark text-light py-5">
+<body class="py-5">
     <main class="container" style="max-width: 720px;">
         <h1>Premium Lessons</h1>
         <p>Try lessons 5–10 for free until you sign out.</p>

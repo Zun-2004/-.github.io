@@ -20,7 +20,7 @@ public class FlashcardModel {
 				+ "from flashcards f "
 				+ "left join flashcard_translations t "
 				+ "  on t.flashcardid = f.flashcardid and t.languageid = ? "
-				+ "where f.lessonid = ? order by f.flashcardid";
+				+ "where f.lessonid = ? order by f.cardnumber, f.flashcardid";
 
 		try (Connection conn = DBConnection.getConnection(context);
 				PreparedStatement stmt = conn.prepareStatement(sql)) {
