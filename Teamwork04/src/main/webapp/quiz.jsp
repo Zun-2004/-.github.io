@@ -10,6 +10,12 @@
     if (lang == null) {
         lang = 1;
     }
+    Integer lessonId = (Integer) session.getAttribute("quizLessonId");
+    if (request.getAttribute("questions") == null && request.getAttribute("submitted") == null) {
+        response.sendRedirect("quiz");
+        return;
+    }
+    String retryUrl = lessonId == null ? "quiz?lang=" + lang : "quiz?lessonId=" + lessonId;
     Boolean submitted = (Boolean) request.getAttribute("submitted");
     Integer score = (Integer) request.getAttribute("score");
     Integer total = (Integer) request.getAttribute("total");
@@ -24,17 +30,21 @@
 <body class="bg-light">
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>All Lessons Quiz</h2>
+        <h2><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %></h2>
+        <% if (lessonId == null) { %>
         <div>
             <a href="quiz?lang=1" class="btn btn-outline-primary <%= (lang == 1 ? "active" : "") %>">Myanmar</a>
             <a href="quiz?lang=3" class="btn btn-outline-primary <%= (lang == 3 ? "active" : "") %>">Japanese</a>
         </div>
+        <% } else { %>
+        <a href="LessonDetailController?id=<%= lessonId %>">Back to lesson</a>
+        <% } %>
     </div>
 
     <% if (Boolean.TRUE.equals(submitted)) { %>
         <div class="alert alert-info">
             <strong>Score:</strong> <%= score %> / <%= total %>
-            <a href="quiz?lang=<%= lang %>" class="btn btn-sm btn-primary ms-3">Try Again</a>
+            <a href="<%= retryUrl %>" class="btn btn-sm btn-primary ms-3">Try Again</a>
         </div>
     <% } %>
 

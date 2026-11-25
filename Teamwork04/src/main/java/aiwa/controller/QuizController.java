@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import aiwa.model.LanguageModel;
 import aiwa.model.QuizModel;
 import aiwa.util.DBConnection;
 
@@ -36,10 +37,39 @@ public class QuizController extends HttpServlet {
 			}
 		}
 
-		try (Connection conn = DBConnection.getConnection(getServletContext())) {
-			List<QuizModel> questions = generateAllLessonsQuiz(conn, languageId, 10);
+		HttpSession session = request.getSession();
+		Integer lessonId = null;
+		Integer courseLanguageId = null;
+		boolean premium = session.getAttribute("user_id") != null
+				&& Boolean.TRUE.equals(session.getAttribute("demoPremium"));
 
-			HttpSession session = request.getSession();
+		try (Connection conn = DBConnection.getConnection(getServletContext())) {
+			String lessonParam = request.getParameter("lessonId");
+			if (lessonParam != null) {
+				Integer userId = (Integer) session.getAttribute("user_id");
+				if (userId == null) {
+					response.sendRedirect("LoginController");
+					return;
+				}
+				try {
+					lessonId = Integer.valueOf(lessonParam);
+				} catch (NumberFormatException e) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+
+				int[] selection = new LanguageModel().findSelection(getServletContext(), userId);
+				if (selection == null) {
+					response.sendRedirect("LanguageController");
+					return;
+				}
+				languageId = selection[0];
+				courseLanguageId = selection[1];
+			}
+
+			List<QuizModel> questions = loadQuiz(conn, languageId, courseLanguageId,
+					lessonId, premium, lessonId == null ? 10 : 5);
+			session.setAttribute("quizLessonId", lessonId);
 			session.setAttribute("quizQuestions", questions);
 			session.setAttribute("quizLang", languageId);
 
@@ -83,16 +113,32 @@ public class QuizController extends HttpServlet {
 
 	public List<QuizModel> generateAllLessonsQuiz(Connection conn, int languageId, int questionCount)
 			throws Exception {
-		String sql = "SELECT qt.quizid, qt.question, qt.option_a, qt.option_b, qt.option_c, qt.option_d, q.correct_answer "
-				+ "FROM quiz_translations qt "
-				+ "JOIN quizzes q ON qt.quizid = q.quizid "
-				+ "WHERE qt.languageid = ? "
+		return loadQuiz(conn, languageId, null, null, false, questionCount);
+	}
+
+	private List<QuizModel> loadQuiz(Connection conn, int languageId, Integer courseLanguageId,
+			Integer lessonId, boolean premium, int questionCount) throws Exception {
+		String sql = "SELECT q.quizid, COALESCE(qt.question, q.question) AS question, "
+				+ "COALESCE(qt.option_a, q.option_a) AS option_a, "
+				+ "COALESCE(qt.option_b, q.option_b) AS option_b, "
+				+ "COALESCE(qt.option_c, q.option_c) AS option_c, "
+				+ "COALESCE(qt.option_d, q.option_d) AS option_d, q.correct_answer "
+				+ "FROM quizzes q JOIN lessons l ON l.lessonid = q.lessonid "
+				+ "LEFT JOIN quiz_translations qt ON qt.quizid = q.quizid AND qt.languageid = ? "
+				+ "WHERE (l.is_premium = 0 OR ? = 1) "
+				+ (lessonId == null ? "AND qt.quizid IS NOT NULL "
+						: "AND q.lessonid = ? AND l.languageid = ? ")
 				+ "ORDER BY q.lessonid, q.questionnumber";
 
 		List<QuizModel> allQuestions = new ArrayList<>();
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, languageId);
+			ps.setInt(2, premium ? 1 : 0);
+			if (lessonId != null) {
+				ps.setInt(3, lessonId);
+				ps.setInt(4, courseLanguageId);
+			}
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
 					int quizId = rs.getInt("quizid");

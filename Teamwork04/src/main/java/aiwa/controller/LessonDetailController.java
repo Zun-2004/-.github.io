@@ -46,33 +46,32 @@ public class LessonDetailController extends HttpServlet {
 				return;
 			}
 
-			Lesson lesson = new LessonModel().findById(getServletContext(), lessonId);
+			ArrayList<Lesson> allLessons = new LessonModel().findByLanguage(getServletContext(), selection[1]);
+			Lesson lesson = null;
+			Integer nextLessonId = null;
+			for (int i = 0; i < allLessons.size(); i++) {
+				if (allLessons.get(i).getLessonId() == lessonId) {
+					lesson = allLessons.get(i);
+					if (i + 1 < allLessons.size()) {
+						nextLessonId = allLessons.get(i + 1).getLessonId();
+					}
+					break;
+				}
+			}
 			if (lesson == null) {
 				response.sendRedirect("LessonListController");
 				return;
 			}
-			if (lesson.isPremium()) {
-				response.sendRedirect("subscription.jsp?lessonNo=" + lesson.getLessonNo());
+			if (lesson.isPremium() && !Boolean.TRUE.equals(session.getAttribute("demoPremium"))) {
+				response.sendRedirect("SubscriptionController");
 				return;
 			}
 
 			ArrayList<Flashcard> cards = new FlashcardModel().findByLesson(getServletContext(), lessonId, selection[0]);
 
-			ArrayList<Lesson> allLessons = new LessonModel().findByLanguage(getServletContext(), selection[1]);
-			Integer nextLessonId = null;
-			if (allLessons != null) {
-				for (int i = 0; i < allLessons.size() - 1; i++) {
-					if (allLessons.get(i).getLessonId() == lesson.getLessonId()) {
-						nextLessonId = allLessons.get(i + 1).getLessonId();
-						break;
-					}
-				}
-			}
-
 			request.setAttribute("lesson", lesson);
 			request.setAttribute("flashcards", cards);
 			request.setAttribute("nextLessonId", nextLessonId);
-			request.setAttribute("quizLangId", selection[1]);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
