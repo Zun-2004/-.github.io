@@ -62,6 +62,11 @@ public class LoginController extends HttpServlet {
 							password, storedHash)) {
 
 						HttpSession session = request.getSession();
+						request.changeSessionId();
+						session.removeAttribute("demoPremium");
+						session.removeAttribute("demoSubscriptionToken");
+						session.removeAttribute("quizQuestions");
+						session.removeAttribute("quizLessonId");
 
 						session.setAttribute("user_id",
 								rs.getInt("userid"));

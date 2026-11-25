@@ -134,12 +134,6 @@
     Integer nextLessonId =
         (Integer) request.getAttribute("nextLessonId");
 
-    Integer quizLangIdObj =
-        (Integer) request.getAttribute("quizLangId");
-
-    int quizLangId =
-        (quizLangIdObj != null && quizLangIdObj > 0)
-        ? quizLangIdObj : 1;
 %>
 
 <div class="container py-5 lesson-detail-container">
@@ -251,7 +245,7 @@
 
                     <% } %>
 
-                    <a href="quiz?lang=2"
+                    <a href="quiz?lessonId=<%= lesson.getLessonId() %>"
                         class="btn btn-outline-success px-3">
                         Take Quiz
                     </a>

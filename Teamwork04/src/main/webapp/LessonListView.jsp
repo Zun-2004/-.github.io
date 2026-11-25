@@ -153,7 +153,7 @@
                 Home
             </a>
 
-            <a href="${pageContext.request.contextPath}/subscription.jsp?lessonNo=5"
+            <a href="${pageContext.request.contextPath}/SubscriptionController"
                 class="btn btn-success px-3 py-2 rounded-3">
                 <i class="bi bi-star-fill me-1"></i>
                 Subscription
@@ -176,7 +176,7 @@
 
             <div class="col">
 
-                <% if (l.isPremium()) { %>
+                <% if (l.isPremium() && !Boolean.TRUE.equals(session.getAttribute("demoPremium"))) { %>
 
                     <!-- Premium Lesson -->
                     <div class="card lesson-card lesson-card-premium text-center h-100">
