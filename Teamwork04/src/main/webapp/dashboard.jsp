@@ -22,7 +22,7 @@
         rel="stylesheet">
 
     <link rel="stylesheet"
-        href="${pageContext.request.contextPath}/css/style.css">
+        href="${pageContext.request.contextPath}/style.css">
 
     <style>
         .dashboard-container {
