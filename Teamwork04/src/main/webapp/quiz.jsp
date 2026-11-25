@@ -1,6 +1,12 @@
 
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List, aiwa.model.QuizModel" %>
+<%!
+    private String escape(String value) {
+        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+%>
 <%
     List<QuizModel> questions = (List<QuizModel>) request.getAttribute("questions");
     Integer lang = (Integer) request.getAttribute("lang");
@@ -16,69 +22,109 @@
         return;
     }
     String retryUrl = lessonId == null ? "quiz?lang=" + lang : "quiz?lessonId=" + lessonId;
-    Boolean submitted = (Boolean) request.getAttribute("submitted");
+    boolean submitted = Boolean.TRUE.equals(request.getAttribute("submitted"));
+    int count = questions == null ? 0 : questions.size();
     Integer score = (Integer) request.getAttribute("score");
     Integer total = (Integer) request.getAttribute("total");
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>All Lessons Quiz</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %> | LinguaWorld</title>
+<style>
+    :root { color-scheme: light; --ink: #17233b; --muted: #48576f; --accent: #254b9b; --line: #ccd7e7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f0f4fa; color: var(--ink); font: 1rem/1.55 system-ui, "Myanmar Text", "Yu Gothic", sans-serif; }
+    main { width: min(48rem, calc(100% - 2rem)); margin: 2rem auto; }
+    header { background: #152d54; color: white; padding: clamp(1.25rem, 4vw, 2.5rem); border-radius: 1rem; }
+    h1 { margin: .25rem 0 0; font-size: clamp(1.9rem, 5vw, 2.65rem); line-height: 1.15; }
+    header a { color: #e1ecff; }
+    header p { margin: .6rem 0 0; color: #e1ecff; }
+    nav { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+    nav a[aria-current] { font-weight: 700; }
+    .card { min-width: 0; width: 100%; margin: 1rem 0; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid var(--line); border-radius: .85rem; background: white; }
+    .prompt { display: block; margin: 0 0 .8rem; font-size: 1.15rem; font-weight: 650; overflow-wrap: anywhere; }
+    .number { color: var(--accent); margin-right: .4rem; }
+    .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+    .option { display: flex; align-items: center; gap: .65rem; min-height: 3rem; padding: .65rem .8rem; border: 1px solid var(--line); border-radius: .55rem; overflow-wrap: anywhere; }
+    label.option { cursor: pointer; }
+    label.option:hover, .option:has(input:checked) { background: #eef4ff; border-color: var(--accent); }
+    .option input { flex: none; margin: 0; accent-color: var(--accent); }
+    .option.correct { border-color: #388067; background: #e9f7ef; }
+    .option.wrong { border-color: #a65749; background: #fff1ed; }
+    .answer-note { display: block; font-size: .85rem; font-weight: 650; }
+    .summary { display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .summary p { margin: 0; color: var(--muted); }
+    .summary strong { color: var(--ink); font-size: 1.35rem; }
+    .button { display: inline-block; border: 0; border-radius: .55rem; padding: .75rem 1.1rem; background: var(--accent); color: white; font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
+    :focus-visible { outline: 3px solid #557bcb; outline-offset: 3px; }
+    @media (max-width: 35rem) { .options { grid-template-columns: 1fr; } main { margin-top: 1rem; } }
+</style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %></h2>
-        <% if (lessonId == null) { %>
-        <div>
-            <a href="quiz?lang=1" class="btn btn-outline-primary <%= (lang == 1 ? "active" : "") %>">Myanmar</a>
-            <a href="quiz?lang=3" class="btn btn-outline-primary <%= (lang == 3 ? "active" : "") %>">Japanese</a>
-        </div>
-        <% } else { %>
+<body>
+<main>
+    <header>
+        <% if (lessonId != null) { %>
         <a href="LessonDetailController?id=<%= lessonId %>">Back to lesson</a>
         <% } %>
-    </div>
+        <h1><%= lessonId == null ? "All Lessons Quiz" : "Lesson Quiz" %></h1>
+        <% if (count > 0 && !submitted) { %>
+        <p><%= count %> questions. Choose one answer per question.</p>
+        <% } %>
+        <% if (lessonId == null) { %>
+        <nav aria-label="Quiz languages">
+            <a href="quiz?lang=1" <%= lang == 1 ? "aria-current=\"page\"" : "" %>>Myanmar</a>
+            <a href="quiz?lang=3" <%= lang == 3 ? "aria-current=\"page\"" : "" %>>Japanese</a>
+        </nav>
+        <% } %>
+    </header>
 
-    <% if (Boolean.TRUE.equals(submitted)) { %>
-        <div class="alert alert-info">
-            <strong>Score:</strong> <%= score %> / <%= total %>
-            <a href="<%= retryUrl %>" class="btn btn-sm btn-primary ms-3">Try Again</a>
-        </div>
+    <% if (submitted) { %>
+    <section class="card summary" aria-label="Quiz results">
+        <p>Score <strong><%= score %> / <%= total %></strong></p>
+        <a href="<%= retryUrl %>" class="button">Try again</a>
+    </section>
     <% } %>
 
+    <% if (count == 0) { %>
+    <p class="card">No quiz questions available yet.</p>
+    <% } else { %>
     <form action="quiz" method="post">
-        <% if (questions != null && !questions.isEmpty()) {
-            for (int i = 0; i < questions.size(); i++) {
-                QuizModel q = questions.get(i);
-                String selected = request.getParameter("q_" + i);
+        <% for (int i = 0; i < count; i++) {
+            QuizModel q = questions.get(i);
+            String selected = request.getParameter("q_" + i);
         %>
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><%= (i + 1) %>. <%= q.getPromptWord() %></h5>
-                <% for (String opt : q.getOptions()) {
-                    String inputId = "q" + i + "_" + opt.hashCode();
+        <section class="card" role="group" aria-labelledby="prompt-<%= i %>">
+            <h2 id="prompt-<%= i %>" class="prompt"><span class="number"><%= i + 1 %>.</span><%= escape(q.getPromptWord()) %></h2>
+            <div class="options">
+                <% for (String option : q.getOptions()) {
+                    boolean correct = option.equals(q.getCorrectAnswer());
+                    boolean chosen = option.equals(selected);
+                    if (submitted) {
                 %>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="q_<%= i %>" id="<%= inputId %>"
-                           value="<%= opt %>" <%= (opt.equals(selected) ? "checked" : "") %> required>
-                    <label class="form-check-label" for="<%= inputId %>"><%= opt %></label>
+                <div class="option <%= correct ? "correct" : chosen ? "wrong" : "" %>">
+                    <span><%= escape(option) %>
+                    <% if (correct || chosen) { %>
+                    <span class="answer-note"><%= correct ? (chosen ? "Your answer · Correct" : "Correct answer") : "Your answer · Incorrect" %></span>
+                    <% } %>
+                    </span>
                 </div>
-                <% } %>
-                <% if (Boolean.TRUE.equals(submitted)) { %>
-                    <div class="mt-2 text-success"><strong>Correct Answer:</strong> <%= q.getCorrectAnswer() %></div>
-                <% } %>
+                <% } else { %>
+                <label class="option">
+                    <input type="radio" name="q_<%= i %>" value="<%= escape(option) %>" required>
+                    <span><%= escape(option) %></span>
+                </label>
+                <% } } %>
             </div>
-        </div>
-        <%  } %>
-        <% if (!Boolean.TRUE.equals(submitted)) { %>
-            <button type="submit" class="btn btn-success">Submit Quiz</button>
+        </section>
         <% } %>
-        <% } else { %>
-            <div class="alert alert-warning">No quiz questions available yet.</div>
+        <% if (!submitted) { %>
+        <button type="submit" class="button">Submit quiz</button>
         <% } %>
     </form>
-</div>
+    <% } %>
+</main>
 </body>
 </html>
